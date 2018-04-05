@@ -1,3 +1,3 @@
-#PPC Class Project code repo
+# PPC Class Project code repo
 
-####Team: Scott Peters, Sagar Bhatt
+#### Team: Scott Peters, Sagar Bhatt
