@@ -1,7 +1,4 @@
 // MMSP.main.hpp
-// Boilerplate source code for MMSP executables
-// Questions/comments to gruberja@gmail.com (Jason Gruber)
-
 // The user must supply the following in any source
 // code that includes this file:
 //
@@ -18,6 +15,7 @@
 //
 //     std::string PROGRAM = "...";
 //     std::string MESSAGE = "...";
+//     typedef ... GRID1D;
 //     typedef ... GRID2D;
 //     typedef ... GRID3D;
 //
@@ -32,19 +30,40 @@
 #include<sstream>
 #include<cstdlib>
 #include<cctype>
+#include<time.h>
+#include <mpi.h>
+
+#define BGQ 1 // when running BG/Q, comment out when running on kratos
+
+#ifdef BGQ
+#include<hwi/include/bqc/A2_inlines.h>
+double processor_frequency = 1600000000.0;
+unsigned long long start_cycles = 0;
+unsigned long long end_cycles = 0;
+#else
+#define GetTimeBase MPI_Wtime
+double start_cycles = 0.0, end_cycles = 0.0;
+#endif
+double time_in_secs1 = 0.0;
 
 int main(int argc, char* argv[]) {
 	MMSP::Init(argc, argv);
-
 
 	// check argument list
 	if (argc < 2) {
 		std::cout << PROGRAM << ": bad argument list.  Use\n\n";
 		std::cout << "    " << PROGRAM << " --help\n\n";
 		std::cout << "to generate help message.\n\n";
-		exit(-1);
+		MMSP::Abort(-1);
 	}
 
+	// Many of the example programs call rand(). srand() must be called
+	// _exactly once_, making this the proper place for it.
+	int rank = 0;
+#ifdef MPI_VERSION
+	rank = MPI::COMM_WORLD.Get_rank();
+#endif
+	srand(time(NULL) + rank);
 
 	// print help message and exit
 	if (std::string(argv[1]) == std::string("--help")) {
@@ -80,7 +99,6 @@ int main(int argc, char* argv[]) {
 		exit(0);
 	}
 
-
 	// generate example grid
 	else if (std::string(argv[1]) == std::string("--example")) {
 		// check argument list
@@ -88,7 +106,7 @@ int main(int argc, char* argv[]) {
 			std::cout << PROGRAM << ": bad argument list.  Use\n\n";
 			std::cout << "    " << PROGRAM << " --help\n\n";
 			std::cout << "to generate help message.\n\n";
-			exit(-1);
+			MMSP::Abort(-1);
 		}
 
 		// check problem dimension
@@ -96,32 +114,25 @@ int main(int argc, char* argv[]) {
 			std::cout << PROGRAM << ": example grid must have integral dimension.  Use\n\n";
 			std::cout << "    " << PROGRAM << " --help\n\n";
 			std::cout << "to generate help message.\n\n";
-			exit(-1);
+			MMSP::Abort(-1);
 		}
 
 		int dim = atoi(argv[2]);
-
-		/*
-		// dimension must be 2 or 3
-		if (dim<2 or dim>3) {
-			std::cout<<PROGRAM<<": example grid must be of dimension 2 or 3.  Use\n\n";
-			std::cout<<"    "<<PROGRAM<<" --help\n\n";
-			std::cout<<"to generate help message.\n\n";
-			exit(-1);
-		}
-		*/
 
 		// set output file name
 		std::string outfile;
 		if (argc < 4) outfile = "example";
 		else outfile = argv[3];
 
-		char* filename = new char[outfile.length()];
-		for (unsigned int i=0; i<outfile.length(); i++)
+		char* filename = new char[outfile.length() + 1];
+		for (unsigned int i = 0; i < outfile.length(); i++)
 			filename[i] = outfile[i];
+		filename[outfile.length()] = '\0';
 
 		// generate test problem
 		MMSP::generate(dim, filename);
+
+		delete [] filename;
 	}
 
 	// run simulation
@@ -131,7 +142,7 @@ int main(int argc, char* argv[]) {
 			std::cout << PROGRAM << ": bad argument list.  Use\n\n";
 			std::cout << "    " << PROGRAM << " --help\n\n";
 			std::cout << "to generate help message.\n\n";
-			exit(-1);
+			MMSP::Abort(-1);
 		}
 
 		int steps;
@@ -147,7 +158,7 @@ int main(int argc, char* argv[]) {
 				std::cout << PROGRAM << ": number of time steps must have integral value.  Use\n\n";
 				std::cout << "    " << PROGRAM << " --help\n\n";
 				std::cout << "to generate help message.\n\n";
-				exit(-1);
+				MMSP::Abort(-1);
 			}
 
 			steps = atoi(argv[2]);
@@ -159,7 +170,7 @@ int main(int argc, char* argv[]) {
 					std::cout << PROGRAM << ": output increment must have integral value.  Use\n\n";
 					std::cout << "    " << PROGRAM << " --help\n\n";
 					std::cout << "to generate help message.\n\n";
-					exit(-1);
+					MMSP::Abort(-1);
 				}
 
 				increment = atoi(argv[3]);
@@ -169,7 +180,7 @@ int main(int argc, char* argv[]) {
 					std::cout << PROGRAM << ": output increment must be smaller than number of time steps.  Use\n\n";
 					std::cout << "    " << PROGRAM << " --help\n\n";
 					std::cout << "to generate help message.\n\n";
-					exit(-1);
+					MMSP::Abort(-1);
 				}
 			}
 		}
@@ -184,7 +195,7 @@ int main(int argc, char* argv[]) {
 				std::cout << PROGRAM << ": number of time steps must have integral value.  Use\n\n";
 				std::cout << "    " << PROGRAM << " --help\n\n";
 				std::cout << "to generate help message.\n\n";
-				exit(-1);
+				MMSP::Abort(-1);
 			}
 
 			steps = atoi(argv[3]);
@@ -196,7 +207,7 @@ int main(int argc, char* argv[]) {
 					std::cout << PROGRAM << ": output increment must have integral value.  Use\n\n";
 					std::cout << "    " << PROGRAM << " --help\n\n";
 					std::cout << "to generate help message.\n\n";
-					exit(-1);
+					MMSP::Abort(-1);
 				}
 
 				increment = atoi(argv[4]);
@@ -206,7 +217,7 @@ int main(int argc, char* argv[]) {
 					std::cout << PROGRAM << ": output increment must be smaller than number of time steps.  Use\n\n";
 					std::cout << "    " << PROGRAM << " --help\n\n";
 					std::cout << "to generate help message.\n\n";
-					exit(-1);
+					MMSP::Abort(-1);
 				}
 			}
 		}
@@ -215,7 +226,7 @@ int main(int argc, char* argv[]) {
 		std::ifstream input(argv[1]);
 		if (!input) {
 			std::cerr << "File input error: could not open " << argv[1] << ".\n\n";
-			exit(-1);
+			MMSP::Abort(-1);
 		}
 
 		// read data type
@@ -225,103 +236,105 @@ int main(int argc, char* argv[]) {
 		// grid type error check
 		if (type.substr(0, 4) != "grid") {
 			std::cerr << "File input error: file does not contain grid data." << std::endl;
-			exit(-1);
+			MMSP::Abort(-1);
 		}
 
 		// read grid dimension
 		int dim;
 		input >> dim;
 
-		// set output file basename
-		int iterations_start(0);
-		if (outfile.find_first_of(".") != outfile.find_last_of(".")) {
-			std::string number = outfile.substr(outfile.find_first_of(".") + 1, outfile.find_last_of(".") - 1);
-			iterations_start = atoi(number.c_str());
-		}
-		std::string base;
-		if (outfile.find(".", outfile.find_first_of(".") + 1) == std::string::npos) // only one dot found
-			base = outfile.substr(0, outfile.find_last_of(".")) + ".";
-		else {
-			int last_dot = outfile.find_last_of(".");
-			int prev_dot = outfile.rfind('.', last_dot - 1);
-			std::string number = outfile.substr(prev_dot + 1, last_dot - prev_dot - 1);
-			bool isNumeric(true);
-			for (unsigned int i = 0; i < number.size(); ++i) {
-				if (!isdigit(number[i])) isNumeric = false;
-			}
-			if (isNumeric)
-				base = outfile.substr(0, outfile.rfind(".", outfile.find_last_of(".") - 1)) + ".";
-			else base = outfile.substr(0, outfile.find_last_of(".")) + ".";
-		}
+		input.close();
 
-		// set output file suffix
-		std::string suffix = "";
-		if (outfile.find_last_of(".") != std::string::npos)
-			suffix = outfile.substr(outfile.find_last_of("."), std::string::npos);
+		// // set output file basename
+		// int iterations_start(0);
+		// if (outfile.find_first_of(".") != outfile.find_last_of(".")) {
+		// 	std::string number = outfile.substr(outfile.find_first_of(".") + 1, outfile.find_last_of(".") - 1);
+		// 	iterations_start = atoi(number.c_str());
+		// }
+		// std::string base;
+		// if (outfile.find(".", outfile.find_first_of(".") + 1) == std::string::npos) // only one dot found
+		// 	base = outfile.substr(0, outfile.find_last_of(".")) + ".";
+		// else {
+		// 	int last_dot = outfile.find_last_of(".");
+		// 	int prev_dot = outfile.rfind('.', last_dot - 1);
+		// 	std::string number = outfile.substr(prev_dot + 1, last_dot - prev_dot - 1);
+		// 	bool isNumeric(true);
+		// 	for (unsigned int i = 0; i < number.size(); ++i) {
+		// 		if (!isdigit(number[i])) isNumeric = false;
+		// 	}
+		// 	if (isNumeric)
+		// 		base = outfile.substr(0, outfile.rfind(".", outfile.find_last_of(".") - 1)) + ".";
+		// 	else base = outfile.substr(0, outfile.find_last_of(".")) + ".";
+		// }
 
-		// set output filename length
-		int length = base.length() + suffix.length();
-		if (1) {
-			std::stringstream slength;
-			slength << steps;
-			length += slength.str().length();
-		}
+		// // set output file suffix
+		// std::string suffix = "";
+		// if (outfile.find_last_of(".") != std::string::npos)
+		// 	suffix = outfile.substr(outfile.find_last_of("."), std::string::npos);
 
+		// // set output filename length
+		// int length = base.length() + suffix.length();
+		// if (1) {
+		// 	std::stringstream slength;
+		// 	slength << steps;
+		// 	length += slength.str().length();
+		// }
 
+		unsigned int rank = 0;
+		unsigned int np = 0;
+#ifdef MPI_VERSION
+		rank = MPI::COMM_WORLD.Get_rank();
+		np = MPI::COMM_WORLD.Get_size();
+#endif
 		if (dim == 2) {
 			// construct grid object
 			GRID2D grid(argv[1]);
-
+			// Calculate Start time
+			start_cycles = GetTimeBase();   // P2P time start
 			// perform computation
-			for (int i = iterations_start; i < steps; i += increment) {
+			for (int i = 0; i < steps; i += increment) {
 				MMSP::update(grid, increment);
-
-				// generate output filename
-				std::stringstream outstr;
-				int n = outstr.str().length();
-				for (int j = 0; n < length; j++) {
-					outstr.str("");
-					outstr << base;
-					for (int k = 0; k < j; k++) outstr << 0;
-					outstr << i + increment << suffix;
-					n = outstr.str().length();
-				}
-				char* filename = new char[outstr.str().length()];
-				for (unsigned int i=0; i<outstr.str().length(); i++)
-					filename[i]=outstr.str()[i];
-
-				// write grid output to file
-				MMSP::output(grid, filename);
-				delete [] filename;
+				
 			}
-		}
+			// generate output filename
+			// std::stringstream outstr;
+			// int n = outstr.str().length();
+			// for (int j = 0; n < length; j++) {
+			// 	outstr.str("");
+			// 	outstr << base;
+			// 	for (int k = 0; k < j; k++) outstr << 0;
+			// 	outstr << i + increment << suffix;
+			// 	n = outstr.str().length();
+			// }
+			end_cycles = GetTimeBase();
+#ifdef BGQ
 
-		if (dim == 3) {
-			// construct grid object
-			GRID3D grid(argv[1]);
+			time_in_secs1 = ((double)(end_cycles - start_cycles)) / processor_frequency;
+#else
 
-			// perform computation
-			for (int i = iterations_start; i < steps; i += increment) {
-				MMSP::update(grid, increment);
+			time_in_secs1 = ((double)(end_cycles - start_cycles));
+#endif
 
-				// generate output filename
-				std::stringstream outstr;
-				int n = outstr.str().length();
-				for (int j = 0; n < length; j++) {
-					outstr.str("");
-					outstr << base;
-					for (int k = 0; k < j; k++) outstr << 0;
-					outstr << i + increment << suffix;
-					n = outstr.str().length();
-				}
-				char* filename = new char[outstr.str().length()];
-				for (unsigned int i=0; i<outstr.str().length(); i++)
-					filename[i]=outstr.str()[i];
-
-				// write grid output to file
-				MMSP::output(grid, filename);
-				delete [] filename;
+			if (rank == 0)
+			{
+				/**********************************************************
+				  Writing time to file for Plotting
+				**********************************************************/
+				FILE *ptrFileOut;
+				ptrFileOut = fopen("time.dat", "a");
+				fprintf( ptrFileOut, "%d %f \n", np, time_in_secs1);
+				fclose(ptrFileOut);
 			}
+			MMSP::output(grid, "bgfinal");
+
+
+			// char filename[FILENAME_MAX] = {}; // initialize null characters
+			// for (unsigned int j = 0; j < outstr.str().length(); j++)
+			// 	filename[j] = outstr.str()[j];
+
+
+
+			// write grid output to file
 		}
 	}
 

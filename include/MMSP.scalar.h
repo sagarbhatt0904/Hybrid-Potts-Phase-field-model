@@ -1,10 +1,10 @@
-// MMSP.scalar.hpp
+// MMSP.scalar.h
 // Class definition for the MMSP scalar data structure
 // Questions/comments to gruberja@gmail.com (Jason Gruber)
 
 #ifndef MMSP_SCALAR
 #define MMSP_SCALAR
-#include"MMSP.utility.hpp"
+#include"MMSP.utility.h"
 
 namespace MMSP {
 
@@ -32,20 +32,6 @@ public:
 	operator const T&() const {
 		return data;
 	}
-/*ACME project*/
-  double& GetTmp(){
-    return tmp;
-  }
-  const double& GetTmp() const{
-    return tmp;
-  }
-  double& GetTmc(){
-    return tmc;
-  }
-  const double& GetTmc() const{
-    return tmc;
-  }
-/*ACME project*/
 
 	// assignment operators
 	scalar& operator=(const T& value) {
@@ -64,42 +50,6 @@ public:
 		data = static_cast<T>(s);
 		return *this;
 	}
-
-/*ACME project*/
-	scalar& AssignTmp(const T& value) {
-		tmp = value;
-		return tmp;
-	}
-	scalar& AssignTmp(const scalar& s) {
-		tmp = s.tmp;
-		return tmp;
-	}
-	template <typename U> scalar& AssignTmp(const U& value) {
-		tmp = static_cast<T>(value);
-		return tmp;
-	}
-	template <typename U> scalar& AssignTmp(const scalar<U>& s) {
-		tmp = static_cast<T>(s);
-		return tmp;
-	}
-	scalar& AssignTmc(const T& value) {
-		tmc = value;
-		return tmc;
-	}
-	scalar& AssignTmc(const scalar& s) {
-		tmc = s.tmc;
-		return tmc;
-	}
-	template <typename U> scalar& AssignTmc(const U& value) {
-		tmc = static_cast<T>(value);
-		return tmc;
-	}
-	template <typename U> scalar& AssignTmc(const scalar<U>& s) {
-		tmc = static_cast<T>(s);
-		return tmc;
-	}
-/*ACME project*/
-
 
 	// buffer I/O functions
 	int buffer_size() const {
@@ -139,13 +89,7 @@ public:
 private:
 	// object data
 	T data;
-
-  /* ACME project*/
-  double tmc;
-  double tmp;
-  /* ACME project*/
 };
-
 
 // buffer I/O functions
 template <typename T> int buffer_size(const scalar<T>& s) {
@@ -207,21 +151,6 @@ public:
 		return *data;
 	}
 
-/*ACME project*/
-  double& GetTmp(){
-    return *tmp;
-  }
-  const double& GetTmp() const{
-    return *tmp;
-  }
-  double& GetTmc(){
-    return *tmc;
-  }
-  const double& GetTmc() const{
-    return *tmc;
-  }
-/*ACME project*/
-
 	// assignment operators
 	scalar<T>& operator=(const T& value) const {
 		return data->operator=(value);
@@ -235,32 +164,6 @@ public:
 	template <typename U> scalar<T>& operator=(const scalar<U>& s) const {
 		return data->operator=(s);
 	}
-/*ACME project*/
-	scalar<T>& AssignTmp(const T& value) const {
-		return tmp->AssignTmp(value);
-	}
-	scalar<T>& AssignTmp(const scalar<T>& s) const {
-		return tmp->AssignTmp(s);
-	}
-	template <typename U> scalar<T>& AssignTmp(const U& value) const {
-		return tmp->AssignTmp(value);
-	}
-	template <typename U> scalar<T>& AssignTmp(const scalar<U>& s) const {
-		return tmp->AssignTmp(s);
-	}
-	scalar<T>& AssignTmc(const T& value) const {
-		return tmp->AssignTmc(value);
-	}
-	scalar<T>& AssignTmc(const scalar<T>& s) const {
-		return tmp->AssignTmc(s);
-	}
-	template <typename U> scalar<T>& AssignTmc(const U& value) const {
-		return tmp->AssignTmc(value);
-	}
-	template <typename U> scalar<T>& AssignTmc(const scalar<U>& s) const {
-		return tmp->AssignTmc(s);
-	}
-/*ACME project*/
 
 	// buffer I/O functions
 	int buffer_size() const {
@@ -297,10 +200,6 @@ public:
 
 	// object data
 	scalar<T>* data;
-/*ACME project*/
-  scalar<double>* tmp;
-  scalar<double>* tmc;
-/*ACME project*/
 	const int* s0;
 	const int* sx;
 	const int* x0;

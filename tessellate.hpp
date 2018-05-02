@@ -1268,6 +1268,7 @@ unsigned long tessellate(MMSP::grid<dim,T>& grid, const int& nseeds, const int& 
 	#ifndef MPI_VERSION
 	timer=approximate_voronoi<dim,T>(grid, seeds);
 	#else
+	
 	timer=exact_voronoi_threads<dim,T>(grid, seeds, nthreads);
 	MPI::COMM_WORLD.Barrier();
 	total_procs=0;

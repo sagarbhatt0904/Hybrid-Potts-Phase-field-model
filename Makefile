@@ -1,70 +1,46 @@
-# Makefile
-# GNU Makefile for Voronoi tessellation and sparse phase-field grain growth
-# Questions/comments to kellet@rpi.edu (Trevor Keller)
-
 # includes
-incdir = include
-algodir = algorithms
+incdir = ./include
+algodir = ./algorithms
 
 # IBM XL compiler
 BG_XL = /bgsys/drivers/ppcfloor/comm/xl
 BG_INC = -I$(BG_PATH)/include
 BG_LIB = -L$(BG_PATH)/lib
+BG_ALG = -I$(BG_PATH)/algorithms
 
 # compilers/flags
 compiler = g++ -O3 
 pcompiler =mpic++ -O3 -std=c++0x
 flags = -I$(incdir) -I$(algodir) -I$(algodir)/topology
+pflags = $(flags) -include mpi.h
 
 # RPI CCI AMOS compilers/flags
-qcompiler = mpic++ -O3  -qarch=qp -qtune=qp -qflag=w -qstrict -qreport
+qcompiler = mpic++ -g  -qarch=qp -qtune=qp -qflag=w -qstrict -qreport
 #qcompiler = mpic++ -O5 -qarch=qp -qtune=qp -qflag=w -qstrict -qprefetch=aggressive -qsimd=auto -qhot=fastmath -qinline=level=10
 #qflags = $(CFLAGS) $(BG_INC) $(BG_LIB) $(LDFLAGS) $(flags)
 
 # ONLY uncomment the following if <module load experimental/zlib> FAILS.
-qflags = $(BG_INC) $(BG_LIB) $(flags) -I/bgsys/apps/CCNI/zlib/zlib-1.2.7/include -L/bgsys/apps/CCNI/zlib/zlib-1.2.7/lib
+qflags = $(BG_INC) $(BG_LIB) $(BG_ALG) $(flags) -I/bgsys/apps/CCNI/zlib/zlib-1.2.7/include -L/bgsys/apps/CCNI/zlib/zlib-1.2.7/lib 
+
 
 # dependencies
-core = $(incdir)/MMSP.utility.hpp \
-       $(incdir)/MMSP.grid.hpp \
-       $(incdir)/MMSP.sparse.hpp
+core = $(incdir)/MMSP.utility.h \
+       $(incdir)/MMSP.grid.h \
+       $(incdir)/MMSP.sparse.h
+
 
 # the program
-graingrowth.out: main.cpp graingrowth.cpp tessellate.hpp $(core)
-	$(compiler) -DPHASEFIELD $(flags) $< -o graingrowth.out -lz -pthread
+gg.out: gg.cpp
+	$(compiler) $(flags) $< -o $@ -lz
 
-mc: main.cpp graingrowth_MC.cpp tessellate.hpp $(core)
-	$(compiler) $(flags) $< -o graingrowth.out -lz -pthread
+parallel: main.cpp gg.cpp tessellate.hpp $(core)
+	$(pcompiler) $(pflags) $< -o $@ -lz
 
-parallel: main.cpp graingrowth.cpp tessellate.hpp $(core)
-	$(pcompiler) -DPHASEFIELD $(flags) -include mpi.h $< -o parallel_GG.out -lz
-
-parallelmc: main.cpp graingrowth_MC.cpp tessellate.hpp $(core)
-	$(pcompiler) $(flags) -include mpi.h $< -o parallel_MC.out -lz -lblas
-
-bgq: main.cpp graingrowth.cpp tessellate.hpp $(core)
-	$(qcompiler) $(qflags) -DBGQ -DSILENT -DPHASEFIELD -DRAW $< -o q_GG.out
-
-bgqmc: main.cpp graingrowth_MC.cpp tessellate.hpp $(core)
-	$(qcompiler) $(qflags) -DBGQ -DSILENT -DRAW $< -o q_MC.out
-
-wrongendian: wrongendian.cpp
+bgqmc: main.cpp gg.cpp tessellate.hpp $(core)
+	$(qcompiler) $(qflags)   -DBGQ -DSILENT -DRAW $< -o q_MC.out
+	
+wrongendian: wrongendian.cpp 
 	$(compiler) $< -o $@.out -lz -pthread
 
-mmsp2vtk: TKmmsp2vti.cpp $(core)
-	$(compiler) $(flags) $< -o $@ -lz
-
-mmsp2vtkRecolor: mmsp2vtkRecolor.cpp $(core)
-	$(compiler) $(flags) $< -o $@ -lz
-
-mmsp2vtikeeporder: mmsp2vti_keeporder.cpp $(core)
-	$(compiler) $(flags) $< -o $@ -lz
-
-mmsp2vti200orient: mmsp2vti_200orient.cpp $(core)
-	$(compiler) $(flags) $< -o $@ -lz
-
-mmsp2png: mmsp2png.cpp $(core)
-	$(compiler) $(flags) $< -o $@ -lz -lpng
-
 clean:
-	rm -rf graingrowth.out parallel_GG.out parallel_MC.out q_GG.out q_MC.out wrongendian.out
+	rm -rf solidification.out parallel q_MC.out
