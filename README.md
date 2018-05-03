@@ -9,8 +9,8 @@ The main codes for this project are: main.cpp, gg.cpp and gg.hpp. The rest of th
 ### To compile and run for Blue Gene:
 1) include all this code in a folder in BGQ. 
 2) edit the `srun_MC.sh` script to correctly represent both your account name, and the location of this folder
-	i) Change the email from "peters9@rpi.edu" to your preferred email if you like. Otherwise please remove this line!
-	ii) The folder my code was run from was at `.../PCP7/PCP7ptrs/gg2/`, change lines that have this to match your location
+-i) Change the email from "peters9@rpi.edu" to your preferred email if you like. Otherwise please remove this line!
+-ii) The folder my code was run from was at `.../PCP7/PCP7ptrs/gg2/`, change lines that have this to match your location
 3) don't forget to type `module load xl` if you haven't done so already!
 4) compile the code by typing `make bgqmc`
 5) submit the code to be run by typing `sbatch srun_MC.sh`
@@ -19,5 +19,5 @@ The main codes for this project are: main.cpp, gg.cpp and gg.hpp. The rest of th
 1) `cd ggOriginal/`
 2) To make use: make parallel
 3) Run : 
-	Step 1) Create a grid: `mpirun -n <np> ./parallel --example 2 <file_name> `		
-	Step 2) Run from the previously created grid: `mpirun -n <np> ./parallel <file_name> <number_of_iteration> <step increment to write files>`
+-Step 1) Create a grid: `mpirun -n <np> ./parallel --example 2 <file_name> `		
+-Step 2) Run from the previously created grid: `mpirun -n <np> ./parallel <file_name> <number_of_iteration> <step increment to write files>`
