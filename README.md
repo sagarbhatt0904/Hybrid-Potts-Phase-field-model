@@ -19,4 +19,5 @@ The main codes for this project are: main.cpp, gg.cpp and gg.hpp. The rest of th
 1) `cd ggOriginal/`
 2) To make use: make parallel
 3) Run : 
-	Step 1) Create a grid: `mpirun -n <np> ./parallel --example 2 <file_name> `		Step 2) Run from the previously created grid: `mpirun -n <np> ./parallel <file_name> <number_of_iteration> <step increment to write files>`
+	Step 1) Create a grid: `mpirun -n <np> ./parallel --example 2 <file_name> `		
+	Step 2) Run from the previously created grid: `mpirun -n <np> ./parallel <file_name> <number_of_iteration> <step increment to write files>`
