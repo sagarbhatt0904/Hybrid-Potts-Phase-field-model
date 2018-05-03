@@ -1,9 +1,8 @@
 # PPC Final Project - Sagar Bhatt, Scott Peters #
-
+----------------------------------------------------------------
 ----------------------------------------------------------------
 ## Grain Growth simulation using Hybrid Potts-Phase field model.
 --------------------------------------------------------------
-
 
 The code is presented in two folders. The folder 'gg_bgq' contains modifications for BG/Q especially. Any execution of the code for BG/Q should be done from that folder only. The folder 'ggOriginal' contains the code in its entierity for all non-BG/Q systems. To change the grid size, open gg.cpp in either folder and change the value of ```#define L```. 
 
