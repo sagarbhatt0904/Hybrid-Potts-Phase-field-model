@@ -8,7 +8,7 @@ The code is presented in two folders. The folder 'gg_bgq' contains modifications
 1) include all this code in a folder in BGQ. 
 2) edit the `srun_MC.sh` script to correctly represent both your account name, and the location of this folder
 	1) Change the email from "peters9@rpi.edu" to your preferred email if you like. Otherwise please remove this line!
-	2) The folder my code was run from was at `.../PCP7/PCP7ptrs/gg2/`, change lines that have this to match your location
+	2) The folder this code was run from was at `.../PCP7/PCP7ptrs/gg2/`, change lines that have this to match your location
 3) don't forget to type `module load xl` if you haven't done so already!
 4) compile the code by typing `make bgqmc`
 5) submit the code to be run by typing `sbatch srun_MC.sh`
